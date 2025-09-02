@@ -12,6 +12,10 @@ def hello_world2():  # put application's code here
     data="hello data"
     return render_template("kk.html", data=data)
 
+@app.route('/user/<username>',methods=["get","post"])
+def get_user(username):
+    return "Hello %s" % username
+
 
 if __name__ == '__main__':
     app.run()
