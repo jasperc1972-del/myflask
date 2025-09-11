@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template,request
 
 app = Flask(__name__)
 
@@ -15,6 +15,14 @@ def hello_world2():  # put application's code here
 @app.route('/user/<username>',methods=["get","post"])
 def get_user(username):
     return "Hello %s" % username
+
+@app.route('/data')
+def test_data():
+    # print(request.args)
+    # print(request.args.get("a"),request.args.get("b"))
+    # print(request.headers)
+    print(request.headers.get("User-Agent"))
+    return "success"
 
 
 if __name__ == '__main__':
