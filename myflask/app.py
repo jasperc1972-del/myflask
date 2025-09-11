@@ -16,12 +16,21 @@ def hello_world2():  # put application's code here
 def get_user(username):
     return "Hello %s" % username
 
-@app.route('/data')
+@app.route('/data',methods=["post","get"])
+
 def test_data():
     # print(request.args)
     # print(request.args.get("a"),request.args.get("b"))
     # print(request.headers)
-    print(request.headers.get("User-Agent"))
+    # print(request.headers.get("User-Agent"))
+    # print(request.data)
+    # import json
+    # print(json.loads(request.data))
+    # print(request.cookies)
+    # print(request.cookies.get("token"))
+    print(request.form)
+    print(request.form.get("username"),request.form.get("password"))
+
     return "success"
 
 
