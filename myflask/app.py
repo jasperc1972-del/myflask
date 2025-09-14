@@ -33,6 +33,14 @@ def test_data():
 
     return "success"
 
+@app.route("/use_template")
+def use_template():
+    datas=[(1,"name1"),(2,"name2"),(3,"name3")]
+    title="學生資料"
+    return render_template("use_template.html",datas=datas,title=title)
+
+
+
 
 if __name__ == '__main__':
     app.run()
