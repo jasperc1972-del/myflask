@@ -1,5 +1,5 @@
 from flask import Flask, render_template,request
-
+import json
 app = Flask(__name__)
 
 
@@ -38,11 +38,13 @@ def use_template():
     datas=[(1,"name1"),(2,"name2"),(3,"name3")]
     title="學生資料"
     return render_template("use_template.html",datas=datas,title=title)
+def read_pvuv_data():
+    """
+    read pv uv data
+    :return: list,eld:(pdate,pv,uv)
+    """
 
-@app.route("/pvuv")
-def pvuv():
-    #read file
-    data=[]
+    data = []
     with open("./data/pvuv.txt", "r", encoding="utf-8") as fin:
         next(fin)
 
@@ -50,10 +52,22 @@ def pvuv():
             line = line.strip()
             pdate, pv, uv = line.split("\t")
             data.append((pdate, pv, uv))
+    return data
+@app.route("/pvuv")
+def pvuv():
+    #read file
+    data=read_pvuv_data()
 
     #return html
     return render_template("pvuv.html",data=data)
 
+@app.route("/getjson")
+def getjson():
+    # read file
+    data=read_pvuv_data()
+
+    #return html
+    return json.dumps(data)
 
 if __name__ == '__main__':
     app.run()
