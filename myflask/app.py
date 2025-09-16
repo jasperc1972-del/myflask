@@ -39,7 +39,20 @@ def use_template():
     title="學生資料"
     return render_template("use_template.html",datas=datas,title=title)
 
+@app.route("/pvuv")
+def pvuv():
+    #read file
+    data=[]
+    with open("./data/pvuv.txt", "r", encoding="utf-8") as fin:
+        next(fin)
 
+        for line in fin:
+            line = line.strip()
+            pdate, pv, uv = line.split("\t")
+            data.append((pdate, pv, uv))
+
+    #return html
+    return render_template("pvuv.html",data=data)
 
 
 if __name__ == '__main__':
