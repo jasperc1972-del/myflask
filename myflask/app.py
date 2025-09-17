@@ -1,5 +1,8 @@
 from flask import Flask, render_template,request
 import json
+
+import db
+
 app = Flask(__name__)
 
 
@@ -60,6 +63,26 @@ def pvuv():
 
     #return html
     return render_template("pvuv.html",data=data)
+
+@app.route("/show_add_user")
+def show_add_user():
+    return render_template("/show_add_user.html")
+
+@app.route("/do_add_user",methods=["post"])
+def do_add_user():
+    print(request.form)
+    name=request.form.get("name")
+    sex = request.form.get("sex")
+    age = request.form.get("age")
+    email = request.form.get("email")
+    sql=f"""
+         insert into user(name,sex,age,email)
+         values("{name}","{sex}",{age},"{email}")
+    """
+    print(sql)
+    db.insert_or_update_data(sql)
+    return "success"
+
 
 @app.route("/getjson")
 def getjson():
