@@ -23,7 +23,20 @@ def query_data(sql):
     finally:
         conn.close()
 
+def insert_or_update_data(sql):
+    conn = getconn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql)
+
+        conn.commit()
+    finally:
+        conn.close()
+
 if __name__=='__main__':
+    sql="insert user(name,sex,age,email) values('david','man',34,'david@gmail.com')"
+    insert_or_update_data(sql)
+
     sql='select * from user'
     datas = query_data(sql)
     import pprint
