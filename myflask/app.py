@@ -170,6 +170,30 @@ def signup_trend():
     return render_template("signup_trend.html", chart_html=chart_html)
 
 
+@app.route("/pvuv_chart")
+def pvuv_chart():
+    sql = "SELECT pdate, pv, uv FROM pvuv ORDER BY pdate"
+    datas = db.query_data(sql)
+
+    dates = [row["pdate"].strftime("%Y-%m-%d") for row in datas]
+    pv_values = [row["pv"] for row in datas]
+    uv_values = [row["uv"] for row in datas]
+
+    trace_pv = go.Scatter(x=dates, y=pv_values, mode='lines+markers', name='PV', line=dict(color='blue'))
+    trace_uv = go.Scatter(x=dates, y=uv_values, mode='lines+markers', name='UV', line=dict(color='orange'))
+
+    layout = go.Layout(
+        title="網站流量趨勢圖（PV / UV）",
+        xaxis=dict(title="日期"),
+        yaxis=dict(title="數值"),
+        legend=dict(x=0, y=1)
+    )
+
+    fig = go.Figure(data=[trace_pv, trace_uv], layout=layout)
+    chart_html = pyo.plot(fig, include_plotlyjs=False, output_type='div')
+
+    return render_template("pvuv_chart.html", chart_html=chart_html)
+
 
 
 
