@@ -1,3 +1,7 @@
+import plotly.graph_objs as go
+import plotly.offline as pyo
+
+
 from flask import Flask, render_template,request
 import json
 
@@ -114,6 +118,59 @@ def show_user(user_id):
 
     user = datas[0]
     return render_template("show_user.html", user=user)
+
+@app.route("/age_chart")
+def age_chart():
+    sql = "SELECT age, COUNT(*) as count FROM user GROUP BY age ORDER BY age"
+    datas = db.query_data(sql)
+
+    ages = [str(row["age"]) for row in datas]
+    counts = [row["count"] for row in datas]
+
+    trace = go.Bar(x=ages, y=counts, marker=dict(color='skyblue'))
+    layout = go.Layout(title="用戶年齡分佈", xaxis=dict(title="年齡"), yaxis=dict(title="人數"))
+    fig = go.Figure(data=[trace], layout=layout)
+
+    chart_html = pyo.plot(fig, include_plotlyjs=False, output_type='div')
+    return render_template("age_chart.html", chart_html=chart_html)
+
+@app.route("/gender_chart")
+def gender_chart():
+    sql = "SELECT sex, COUNT(*) as count FROM user GROUP BY sex"
+    datas = db.query_data(sql)
+
+    labels = [row["sex"] for row in datas]
+    values = [row["count"] for row in datas]
+
+    pie = go.Pie(labels=labels, values=values, hole=0.3)
+    layout = go.Layout(title="用戶性別比例")
+    fig = go.Figure(data=[pie], layout=layout)
+
+    chart_html = pyo.plot(fig, include_plotlyjs=False, output_type='div')
+    return render_template("gender_chart.html", chart_html=chart_html)
+
+@app.route("/signup_trend")
+def signup_trend():
+    sql = """
+        SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count
+        FROM user
+        GROUP BY month
+        ORDER BY month
+    """
+    datas = db.query_data(sql)
+
+    months = [row["month"] for row in datas]
+    counts = [row["count"] for row in datas]
+
+    trace = go.Scatter(x=months, y=counts, mode='lines+markers', line=dict(color='green'))
+    layout = go.Layout(title="用戶註冊趨勢", xaxis=dict(title="月份"), yaxis=dict(title="註冊人數"))
+    fig = go.Figure(data=[trace], layout=layout)
+
+    chart_html = pyo.plot(fig, include_plotlyjs=False, output_type='div')
+    return render_template("signup_trend.html", chart_html=chart_html)
+
+
+
 
 
 if __name__ == '__main__':
