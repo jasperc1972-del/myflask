@@ -92,5 +92,29 @@ def getjson():
     #return html
     return json.dumps(data)
 
+@app.route("/show_users/")
+def show_user_list():
+    sql = "select id,name from user"
+    datas = db.query_data(sql)
+    return render_template("/show_users.html", datas=datas)
+
+
+@app.route("/show_user/<user_id>")
+def show_user(user_id):
+    try:
+        user_id = int(user_id)
+    except ValueError:
+        return render_template("error.html", message="用戶 ID 必須是整數")
+
+    sql = "SELECT * FROM user WHERE id = %s"
+    datas = db.query_data(sql, (user_id,))
+
+    if not datas:
+        return render_template("error.html", message="查無此用戶")
+
+    user = datas[0]
+    return render_template("show_user.html", user=user)
+
+
 if __name__ == '__main__':
     app.run()
