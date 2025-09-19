@@ -1,11 +1,14 @@
+from flask import Flask, render_template, request, send_from_directory
+from datetime import datetime
+import os
+import json
 import plotly.graph_objs as go
 import plotly.offline as pyo
-
-
-from flask import Flask, render_template,request
-import json
+import xlwt
 
 import db
+
+
 
 app = Flask(__name__)
 
@@ -194,8 +197,25 @@ def pvuv_chart():
 
     return render_template("pvuv_chart.html", chart_html=chart_html)
 
+def generate_excel(data_dir,fname):
+    fpath = os.path.join(data_dir,fname)
+    workbook = xlwt.Workbook(encoding="utf-8")
+    worksheet=workbook.add_sheet("pvuv")
+    for idx,name in enumerate(["日期","pv","uv"]):
+        worksheet.write(0,idx,name)
+    datas = db.query_data("select * from pvuv")
+    for row,data in enumerate(datas):
+        for col,kv in enumerate(data.items()):
+            worksheet.write(row+1,col,kv[0])
+    workbook.save(fpath)
 
-
+@app.route("/download_pvuv_excel")
+def download_pvuv():
+   data_dir=os.path.join(app.root_path, "downloads")
+   now = datetime.now().strftime("%Y%m%d%H%M%S")
+   fname=f"pvuv_{now}.xls"
+   generate_excel(data_dir, fname)
+   return send_from_directory(data_dir, fname,as_attachment=True)
 
 if __name__ == '__main__':
     app.run()
