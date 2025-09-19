@@ -197,25 +197,42 @@ def pvuv_chart():
 
     return render_template("pvuv_chart.html", chart_html=chart_html)
 
-def generate_excel(data_dir,fname):
-    fpath = os.path.join(data_dir,fname)
+def generate_excel(data_dir, fname):
+    fpath = os.path.join(data_dir, fname)
     workbook = xlwt.Workbook(encoding="utf-8")
-    worksheet=workbook.add_sheet("pvuv")
-    for idx,name in enumerate(["日期","pv","uv"]):
-        worksheet.write(0,idx,name)
-    datas = db.query_data("select * from pvuv")
-    for row,data in enumerate(datas):
-        for col,kv in enumerate(data.items()):
-            worksheet.write(row+1,col,kv[0])
+    worksheet = workbook.add_sheet("pvuv")
+
+    # 寫入欄位標題
+    for idx, name in enumerate(["日期", "pv", "uv"]):
+        worksheet.write(0, idx, name)
+
+    # 查詢資料
+    datas = db.query_data("SELECT pdate, pv, uv FROM pvuv ORDER BY pdate")
+
+    # 寫入資料列
+    for row_idx, row in enumerate(datas):
+        # 格式化日期
+        date_str = row["pdate"].strftime("%Y-%m-%d") if hasattr(row["pdate"], "strftime") else str(row["pdate"])
+        worksheet.write(row_idx + 1, 0, date_str)
+        worksheet.write(row_idx + 1, 1, row["pv"])
+        worksheet.write(row_idx + 1, 2, row["uv"])
+
     workbook.save(fpath)
+
+
 
 @app.route("/download_pvuv_excel")
 def download_pvuv():
-   data_dir=os.path.join(app.root_path, "downloads")
-   now = datetime.now().strftime("%Y%m%d%H%M%S")
-   fname=f"pvuv_{now}.xls"
-   generate_excel(data_dir, fname)
-   return send_from_directory(data_dir, fname,as_attachment=True)
+    data_dir = os.path.join(app.root_path, "downloads")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+
+    now = datetime.now().strftime("%Y%m%d%H%M%S")
+    fname = f"pvuv_{now}.xls"
+    generate_excel(data_dir, fname)
+    return send_from_directory(data_dir, fname, as_attachment=True)
+
+
 
 if __name__ == '__main__':
     app.run()
